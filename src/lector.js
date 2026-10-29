@@ -72,13 +72,15 @@ function revisarLote(paginas) {
 }
 
 class Lector {
-  constructor({ cacheDir } = {}) {
+  constructor({ cacheDir, registro = () => {} } = {}) {
     this.cacheDir = cacheDir || os.tmpdir();
+    this.registro = registro; // función opcional para diagnosticar problemas
     this.worker = null;
   }
 
   async iniciar() {
     if (this.worker) return;
+    this.registro('iniciando OCR');
     const { createWorker } = require('tesseract.js');
     const datos = path.dirname(require.resolve('@tesseract.js-data/eng/package.json'));
     this.worker = await createWorker('eng', 1, {
@@ -87,9 +89,14 @@ class Lector {
       corePath: sinAsar(path.dirname(require.resolve('tesseract.js-core/package.json'))),
       cachePath: this.cacheDir,
       gzip: true,
+      logger: (m) => this.registro(`tesseract: ${m.status} ${m.progress ?? ''}`),
+      errorHandler: (e) => this.registro(`tesseract error: ${e}`),
     });
+    this.registro('OCR listo; cargando pdf.js');
     this.pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
+    this.registro('pdf.js listo; cargando canvas');
     this.canvas = require('@napi-rs/canvas');
+    this.registro('canvas listo');
   }
 
   async terminar() {
@@ -110,6 +117,7 @@ class Lector {
     const paginas = [];
     for (let i = 0; i < total; i++) {
       alProgresar({ pagina: i + 1, total });
+      this.registro(`página ${i + 1} de ${total}`);
 
       const suelto = await PDFDocument.create();
       const [copia] = await suelto.copyPages(original, [i]);

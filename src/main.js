@@ -126,8 +126,11 @@ ipcMain.handle('copia-seguridad', async () => {
 async function autoprueba(ruta, informe) {
   let codigo = 1;
   let texto;
+  const registro = (m) => fs.appendFileSync(informe, `${new Date().toISOString().slice(11, 19)} ${m}\n`);
+  fs.writeFileSync(informe, '');
+  registro(`inicio: electron ${process.versions.electron}, ${process.arch}`);
   try {
-    const l = new Lector({ cacheDir: app.getPath('temp') });
+    const l = new Lector({ cacheDir: app.getPath('temp'), registro });
     const paginas = await l.procesar(ruta, fs.mkdtempSync(path.join(os.tmpdir(), 'albaranes-prueba-')));
     await l.terminar();
     texto = `${paginas.length} páginas: ` + paginas.map((p) => `${p.pagina}=${p.numero || '?'} ${p.fecha || '?'}`).join(', ');
@@ -135,7 +138,7 @@ async function autoprueba(ruta, informe) {
   } catch (e) {
     texto = `ERROR ${e.stack || e}`;
   }
-  fs.writeFileSync(informe, texto + '\n');
+  registro(texto);
   app.exit(codigo);
 }
 
