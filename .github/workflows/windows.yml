@@ -10,16 +10,25 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
       - run: npm ci
       - run: npm test
-      - run: npm run dist
+      - name: npm run dist
+        shell: bash
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
+        run: |
+          set -o pipefail
+          if ! npm run dist 2>&1 | tee build.log; then
+            # Publica el final del registro como anotación para poder leerlo desde la API
+            tail -n 40 build.log | sed 's/%/%25/g' | awk 'BEGIN{ORS="%0A"} {print}' | sed 's/^/::error title=Fallo al compilar::/'
+            echo
+            exit 1
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: Albaranes-instalador
