@@ -121,26 +121,27 @@ ipcMain.handle('copia-seguridad', async () => {
   return biblioteca.copiaSeguridad(r.filePaths[0]);
 });
 
-// Autoprueba de la app ya instalada (la usa GitHub Actions): `Albaranes.exe --autoprueba ruta.pdf`
-// lee el PDF, escribe el resultado y se cierra con código 0 si ha leído número y fecha de cada página.
-async function autoprueba(ruta) {
+// Autoprueba de la app ya instalada (la usa GitHub Actions): `Albaranes.exe --autoprueba ruta.pdf informe.txt`
+// lee el PDF, escribe el resultado en el informe y se cierra con código 0 si ha leído número y fecha de cada página.
+async function autoprueba(ruta, informe) {
   let codigo = 1;
+  let texto;
   try {
     const l = new Lector({ cacheDir: app.getPath('temp') });
     const paginas = await l.procesar(ruta, fs.mkdtempSync(path.join(os.tmpdir(), 'albaranes-prueba-')));
     await l.terminar();
-    const resumen = paginas.map((p) => `${p.pagina}: ${p.numero || '?'} ${p.fecha || '?'}`);
-    console.log(`AUTOPRUEBA ${paginas.length} páginas\n${resumen.join('\n')}`);
+    texto = `${paginas.length} páginas: ` + paginas.map((p) => `${p.pagina}=${p.numero || '?'} ${p.fecha || '?'}`).join(', ');
     codigo = paginas.length && paginas.every((p) => p.numero && p.fecha) ? 0 : 1;
   } catch (e) {
-    console.error('AUTOPRUEBA ERROR', e);
+    texto = `ERROR ${e.stack || e}`;
   }
+  fs.writeFileSync(informe, texto + '\n');
   app.exit(codigo);
 }
 
 app.whenReady().then(async () => {
   const iPrueba = process.argv.indexOf('--autoprueba');
-  if (iPrueba > 0) return autoprueba(process.argv[iPrueba + 1]);
+  if (iPrueba > 0) return autoprueba(process.argv[iPrueba + 1], process.argv[iPrueba + 2]);
   biblioteca = await Biblioteca.abrir(path.join(app.getPath('documents'), 'Albaranes'));
   crearVentana();
 });
