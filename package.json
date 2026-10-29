@@ -19,14 +19,6 @@
       "src/**/*",
       "package.json"
     ],
-    "asarUnpack": [
-      "node_modules/sql.js/dist/*.wasm",
-      "node_modules/tesseract.js/**",
-      "node_modules/tesseract.js-core/**",
-      "node_modules/@tesseract.js-data/**",
-      "node_modules/pdfjs-dist/**",
-      "node_modules/@napi-rs/**"
-    ],
     "win": {
       "target": "nsis"
     },
@@ -35,7 +27,8 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "shortcutName": "Albaranes"
-    }
+    },
+    "asar": false
   },
   "dependencies": {
     "@napi-rs/canvas": "^0.1.100",
