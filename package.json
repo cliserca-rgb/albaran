@@ -1,0 +1,42 @@
+{
+  "name": "albaran",
+  "productName": "Albaranes",
+  "version": "0.1.0",
+  "description": "Biblioteca de albaranes escaneados",
+  "main": "src/main.js",
+  "author": "cliserca",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win nsis",
+    "test": "node --test"
+  },
+  "build": {
+    "appId": "com.cliserca.albaran",
+    "productName": "Albaranes",
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "asarUnpack": [
+      "node_modules/sql.js/dist/*.wasm"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "Albaranes"
+    }
+  },
+  "dependencies": {
+    "sql.js": "^1.13.0"
+  },
+  "devDependencies": {
+    "electron": "^45.1.0",
+    "electron-builder": "^26.18.0"
+  }
+}
