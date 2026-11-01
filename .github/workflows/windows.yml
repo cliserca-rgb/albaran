@@ -9,6 +9,8 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+    permissions:
+      contents: write # para publicar el instalador en "Releases"
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -44,3 +46,17 @@ jobs:
           name: Albaranes-instalador
           path: dist/*.exe
           if-no-files-found: error
+      # Publica el instalador en la página de descargas: https://github.com/<repo>/releases/latest
+      - name: Publicar en Releases
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(node -p "require('./package.json').version")
+          etiqueta="v$version"
+          if gh release view "$etiqueta" > /dev/null 2>&1; then
+            gh release upload "$etiqueta" dist/*.exe --clobber
+          else
+            gh release create "$etiqueta" dist/*.exe --title "Albaranes $version" --notes "Descarga el archivo .exe de abajo y ábrelo para instalar." --latest
+          fi
