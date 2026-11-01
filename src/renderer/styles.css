@@ -257,3 +257,8 @@ h1, h2 { margin: 0; letter-spacing: -.01em; }
 .modal-caja { width: min(900px, 100%); height: 100%; display: flex; flex-direction: column; background: var(--panel); border-radius: 14px; overflow: hidden; box-shadow: var(--sombra-alta); }
 .modal-cabecera { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px 10px 20px; border-bottom: 1px solid var(--borde); }
 #modal-visor { flex: 1; border: 0; background: #3b3f45; }
+
+/* ---------- Añadidos v0.3: botón Escanear ---------- */
+.acciones-lateral { display: flex; flex-direction: column; gap: 8px; }
+.boton.lateral-secundario { background: transparent; border-color: #33466b; color: #dfe6f3; }
+.boton.lateral-secundario:hover { background: rgba(255, 255, 255, .06); border-color: #4a5f88; }

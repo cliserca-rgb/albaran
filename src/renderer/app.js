@@ -394,6 +394,36 @@ $('.nav[data-ir=todos]').addEventListener('click', () => filtrar('', ''));
 $('.nav[data-ir=faltantes]').addEventListener('click', () => mostrarVista('faltantes'));
 $('#busqueda').addEventListener('input', cargarLista);
 $('#btn-carpeta').addEventListener('click', () => window.api.abrirCarpetaDatos());
+
+// Escanear con el escáner del PC: las páginas escaneadas siguen el mismo proceso que un PDF importado.
+$('#btn-escanear').addEventListener('click', async () => {
+  if (estado.ocupado) return;
+  try {
+    importar(await window.api.escanear());
+  } catch (e) {
+    avisar(mensajeError(e), 'error');
+  }
+});
+window.api.puedeEscanear().then((si) => ($('#btn-escanear').hidden = !si));
+
+// Elegir en qué carpeta se guardan los albaranes
+async function mostrarCarpetaActual() {
+  $('#btn-cambiar-carpeta').title = `Carpeta actual: ${(await window.api.carpetaDatos()).actual}`;
+}
+$('#btn-cambiar-carpeta').addEventListener('click', async () => {
+  if (estado.ocupado || estado.vista === 'revision') return avisar('Termina primero la importación en curso.', 'error');
+  try {
+    const r = await window.api.cambiarCarpeta();
+    if (!r) return;
+    avisar(`${r.copiados ? `${albaranes(r.copiados)} copiados. ` : ''}A partir de ahora los albaranes se guardan en:\n${r.actual}`);
+    mostrarCarpetaActual();
+    estado.abiertos.clear();
+    filtrar('', '');
+  } catch (e) {
+    avisar(mensajeError(e), 'error');
+  }
+});
+mostrarCarpetaActual();
 $('#btn-copia').addEventListener('click', async () => {
   try {
     const carpeta = await window.api.copiaSeguridad();

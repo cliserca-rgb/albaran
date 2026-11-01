@@ -15,6 +15,10 @@ const ZONA_CABECERA = { x: 0, y: 0.16, ancho: 0.7, alto: 0.33 };
 const PPP_OCR = 200;
 const ANCHO_MINIATURA = 260;
 
+// Formatos de imagen que se aceptan además del PDF (se convierten a PDF antes de leerlos).
+const EXT_IMAGEN = ['.jpg', '.jpeg', '.png', '.webp', '.bmp', '.gif'];
+const esImagen = (ruta) => EXT_IMAGEN.includes(path.extname(ruta).toLowerCase());
+
 const CONFUSIONES = { l: '1', I: '1', i: '1', '|': '1', '!': '1', O: '0', o: '0', D: '0', S: '5', s: '5', B: '8', Z: '2', z: '2' };
 
 function fechaValida(d, m, a) {
@@ -30,11 +34,14 @@ function interpretarTexto(texto) {
 
   let numero = '';
   let fecha = '';
+  let fechasDistintas = false; // "Fecha" y "Fecha Valor" siempre coinciden; si no, algo se ha leído mal
   for (const linea of candidatas) {
-    const fechas = [...linea.matchAll(/(\d{2})[/\-.](\d{2})[/\-.](\d{4})/g)];
-    if (!fecha) {
-      const valida = fechas.find((f) => fechaValida(+f[1], +f[2], +f[3]));
-      if (valida) fecha = `${valida[3]}-${valida[2]}-${valida[1]}`;
+    const fechas = [...linea.matchAll(/(\d{2})[/\-.](\d{2})[/\-.](\d{4})/g)]
+      .filter((f) => fechaValida(+f[1], +f[2], +f[3]))
+      .map((f) => `${f[3]}-${f[2]}-${f[1]}`);
+    if (!fecha && fechas.length) {
+      fecha = fechas[0];
+      fechasDistintas = fechas.length > 1 && fechas[1] !== fechas[0];
     }
     if (!numero) {
       // Lo que va antes de la primera fecha (o de un trozo con aspecto de fecha) es el número.
@@ -48,23 +55,25 @@ function interpretarTexto(texto) {
     }
     if (numero && fecha) break;
   }
-  return { numero, fecha };
+  return { numero, fecha, fechasDistintas };
 }
 
-// Marca como dudosas las páginas sin número/fecha o con un número de cifras distinto al habitual del lote.
-function revisarLote(paginas) {
+// Marca como dudosas las páginas sin número/fecha o con un número de cifras distinto al habitual.
+// Lo habitual se saca del propio lote si tiene al menos 3 números; si no, de la biblioteca (`cifrasBiblioteca`).
+function revisarLote(paginas, cifrasBiblioteca = 0) {
   const cifras = paginas.map((p) => (p.numero.match(/\d+$/) || [''])[0].length).filter(Boolean);
   const frecuencia = {};
   cifras.forEach((n) => (frecuencia[n] = (frecuencia[n] || 0) + 1));
-  const habitual = Number(Object.keys(frecuencia).sort((a, b) => frecuencia[b] - frecuencia[a])[0]);
+  const habitual = cifras.length >= 3 ? Number(Object.keys(frecuencia).sort((a, b) => frecuencia[b] - frecuencia[a])[0]) : cifrasBiblioteca;
   const vistos = {};
   paginas.forEach((p) => (vistos[p.numero] = (vistos[p.numero] || 0) + 1));
 
   for (const p of paginas) {
     const avisos = [];
     if (!p.numero) avisos.push('No se ha podido leer el número');
-    else if (cifras.length >= 3 && (p.numero.match(/\d+$/) || [''])[0].length !== habitual) avisos.push('El número parece incompleto');
+    else if (habitual && (p.numero.match(/\d+$/) || [''])[0].length !== habitual) avisos.push('El número parece incompleto');
     if (!p.fecha) avisos.push('No se ha podido leer la fecha');
+    else if (p.fechasDistintas) avisos.push('La fecha no coincide con la fecha valor');
     if (p.numero && vistos[p.numero] > 1) avisos.push('Número repetido en este PDF');
     p.avisos = avisos;
   }
@@ -75,6 +84,7 @@ class Lector {
   constructor({ cacheDir, registro = () => {} } = {}) {
     this.cacheDir = cacheDir || os.tmpdir();
     this.registro = registro; // función opcional para diagnosticar problemas
+    this.cifrasHabituales = 0; // nº de cifras típico de los albaranes ya guardados (lo pone quien usa el lector)
     this.worker = null;
   }
 
@@ -104,11 +114,29 @@ class Lector {
     this.worker = null;
   }
 
-  // Lee un PDF (de una o muchas páginas). Guarda cada página como PDF suelto en `carpetaTemporal`
-  // y devuelve, por página: { pagina, archivo, numero, fecha, miniatura, avisos }.
-  async procesar(rutaPdf, carpetaTemporal, alProgresar = () => {}) {
+  // Convierte una imagen (foto o escaneo en JPG, PNG…) en un PDF de una página del ancho de un A4.
+  async imagenAPdf(ruta) {
     await this.iniciar();
-    const bytes = fs.readFileSync(rutaPdf);
+    const imagen = await this.canvas.loadImage(fs.readFileSync(ruta));
+    const lienzo = this.canvas.createCanvas(imagen.width, imagen.height);
+    const ctx = lienzo.getContext('2d');
+    ctx.fillStyle = '#fff'; // las PNG con transparencia saldrían en negro
+    ctx.fillRect(0, 0, lienzo.width, lienzo.height);
+    ctx.drawImage(imagen, 0, 0);
+
+    const doc = await PDFDocument.create();
+    const jpg = await doc.embedJpg(lienzo.toBuffer('image/jpeg', 90));
+    const ancho = 595; // A4 en puntos
+    const alto = (ancho * imagen.height) / imagen.width;
+    doc.addPage([ancho, alto]).drawImage(jpg, { x: 0, y: 0, width: ancho, height: alto });
+    return Buffer.from(await doc.save());
+  }
+
+  // Lee un PDF o una imagen (de una o muchas páginas). Guarda cada página como PDF suelto en `carpetaTemporal`
+  // y devuelve, por página: { pagina, archivo, numero, fecha, miniatura, avisos }.
+  async procesar(ruta, carpetaTemporal, alProgresar = () => {}) {
+    await this.iniciar();
+    const bytes = esImagen(ruta) ? await this.imagenAPdf(ruta) : fs.readFileSync(ruta);
     const original = await PDFDocument.load(bytes, { ignoreEncryption: true });
     const documento = await this.pdfjs.getDocument({ data: new Uint8Array(bytes), verbosity: 0 }).promise;
     const total = original.getPageCount();
@@ -125,12 +153,21 @@ class Lector {
       const archivo = path.join(carpetaTemporal, `pagina-${String(i + 1).padStart(3, '0')}.pdf`);
       fs.writeFileSync(archivo, await suelto.save());
 
-      const { recorte, miniatura } = await this.renderizar(await documento.getPage(i + 1));
-      const { data } = await this.worker.recognize(recorte);
-      paginas.push({ pagina: i + 1, archivo, miniatura, texto: data.text, ...interpretarTexto(data.text) });
+      const { recorte, completa, miniatura } = await this.renderizar(await documento.getPage(i + 1));
+      let texto = (await this.worker.recognize(recorte)).data.text;
+      let leido = interpretarTexto(texto);
+      if (!leido.numero || !leido.fecha) {
+        // Fotos recortadas o escaneos muy desplazados: se lee la página entera y se completa lo que falte.
+        this.registro(`página ${i + 1}: leyendo la página completa`);
+        const textoCompleto = (await this.worker.recognize(completa)).data.text;
+        const otro = interpretarTexto(textoCompleto);
+        leido = leido.fecha ? { ...leido, numero: leido.numero || otro.numero } : { ...otro, numero: leido.numero || otro.numero };
+        texto += '\n' + textoCompleto;
+      }
+      paginas.push({ pagina: i + 1, archivo, miniatura, texto, ...leido });
     }
     await documento.destroy();
-    return revisarLote(paginas);
+    return revisarLote(paginas, this.cifrasHabituales);
   }
 
   async renderizar(pagina) {
@@ -154,9 +191,10 @@ class Lector {
     pagina.cleanup();
     return {
       recorte: zona.toBuffer('image/png'),
+      completa: lienzo.toBuffer('image/png'),
       miniatura: 'data:image/jpeg;base64,' + mini.toBuffer('image/jpeg', 80).toString('base64'),
     };
   }
 }
 
-module.exports = { Lector, interpretarTexto, revisarLote };
+module.exports = { Lector, interpretarTexto, revisarLote, esImagen, EXT_IMAGEN };

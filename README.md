@@ -4,7 +4,7 @@ Aplicación de escritorio para Windows que archiva **albaranes escaneados**.
 
 ## Qué hace
 
-A partir de un PDF escaneado, con uno o con muchos albaranes:
+A partir de un PDF escaneado (con uno o con muchos albaranes), de imágenes JPG/PNG/GIF o escaneando directamente desde la app:
 
 1. **Separa cada página** en un PDF independiente.
 2. **Lee el número de albarán y la fecha** de cada página (OCR, sin internet).
@@ -14,16 +14,18 @@ A partir de un PDF escaneado, con uno o con muchos albaranes:
 
 Antes de guardar se muestra una pantalla de revisión. Los albaranes dudosos (número que parece incompleto, sin fecha, repetidos o ya guardados) salen marcados en amarillo para corregirlos con un clic.
 
-Además: búsqueda por número, notas en cada albarán, y copia de seguridad de todo en la carpeta que elijas (por ejemplo, un pendrive).
+Además:
+- **Imágenes**: al importar o arrastrar fotos o escaneos en JPG, PNG, GIF, WEBP o BMP se convierten a PDF automáticamente.
+- **Botón Escanear** (debajo de Importar PDF): abre la ventana de escaneo de Windows (WIA, funciona con casi cualquier escáner) y permite escanear varias páginas seguidas.
+- **Cambiar carpeta** (abajo en el menú): elegir en qué carpeta se guardan los albaranes y copiar allí los existentes. La carpeta anterior no se borra.
+- Búsqueda por número, notas en cada albarán, y copia de seguridad de todo en la carpeta que elijas (por ejemplo, un pendrive).
 
 ## Descargar el instalador
 
 Cada vez que se suben cambios a GitHub se genera y se prueba el instalador automáticamente:
 
-1. Abre https://github.com/cliserca-rgb/albaran/actions (desde el navegador del ordenador).
-2. Entra en la última ejecución con ✅ verde.
-3. Abajo, en **Artifacts**, descarga **Albaranes-instalador** y descomprímelo.
-4. Ejecuta `Albaranes Setup x.y.z.exe`.
+1. Con la sesión de GitHub iniciada, abre https://github.com/cliserca-rgb/albaran/releases/latest
+2. En **Assets**, descarga `Albaranes.Setup.x.y.z.exe` y ábrelo.
 
 Windows puede mostrar "Windows protegió su PC" porque el instalador no está firmado: pulsa **Más información → Ejecutar de todas formas**.
 
@@ -43,6 +45,7 @@ npm run dist     # genera el instalador (en Windows)
 - `src/main.js` — proceso principal de Electron (ventana, diálogos, comunicación)
 - `src/preload.js` — puente seguro entre la interfaz y el proceso principal
 - `src/lector.js` — separa el PDF (pdf-lib), renderiza cada página (pdf.js) y lee la cabecera con OCR (tesseract.js)
+- `src/escaner.js` — escaneo con WIA mediante PowerShell (solo Windows)
 - `src/db.js` — biblioteca: carpetas por mes e índice SQLite (sql.js)
 - `src/renderer/` — interfaz (HTML, CSS, JS)
 - `test/` — pruebas; `test/ejemplos/ejemplo.pdf` es un albarán inventado (se regenera con `node scripts/crear-ejemplo.js`)
