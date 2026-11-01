@@ -19,3 +19,15 @@ test('separa un PDF escaneado y lee número y fecha de cada página', { timeout:
     await lector.terminar();
   }
 });
+
+test('convierte una imagen JPG en PDF y la lee igual que un escaneo', { timeout: 120000 }, async () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'albaran-lector-'));
+  const lector = new Lector({ cacheDir: tmp });
+  try {
+    const paginas = await lector.procesar(path.join(__dirname, 'ejemplos', 'ejemplo.jpg'), path.join(tmp, 'paginas'));
+    assert.deepEqual(paginas.map((p) => [p.numero, p.fecha]), [['A1053', '2026-11-02']]);
+    assert.equal(fs.readFileSync(paginas[0].archivo).subarray(0, 5).toString(), '%PDF-');
+  } finally {
+    await lector.terminar();
+  }
+});
