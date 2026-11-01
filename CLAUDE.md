@@ -1,6 +1,7 @@
 # Albaranes — notas para Claude
 
 - El usuario habla español y no programa: explica en español y en lenguaje sencillo.
+- **No cambies el diseño ni el procedimiento actual (versión 0.2.0) por iniciativa propia.** Al usuario le gusta tal cual. Haz solo las modificaciones que pida, añadiéndolas sin tocar lo que ya hay (textos, botones, menú lateral, pasos de importación y revisión). Si una petición obliga a cambiar algo visible, pregunta antes.
 - Trabaja desde varios equipos (oficina y casa) en sesiones en la nube: **haz commit y push al terminar cada parte** para no perder trabajo.
 - Es una app para un cliente suyo (empresa "marc & chloe"). Requisitos del cliente: separar el PDF escaneado por páginas, nombrar cada página con su número de albarán (p. ej. A1050), guardarla en la carpeta de su mes, y decir qué números faltan en un intervalo.
 - App Electron para Windows. Los PDF se guardan en `Documentos/Albaranes/<año>/<MM - Mes>/<número>.pdf` y el índice SQLite (`sql.js`, WASM) en `Documentos/Albaranes/albaranes.db`.
