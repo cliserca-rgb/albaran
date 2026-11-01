@@ -32,25 +32,13 @@ jobs:
       - name: Autoprueba de la app empaquetada
         shell: bash
         run: |
-          fallos=0
-          for ejemplo in ejemplo.pdf ejemplo.jpg; do
-            estado=0
-            timeout 180 ./dist/win-unpacked/Albaranes.exe --autoprueba "test/ejemplos/$ejemplo" informe.txt || estado=$?
-            informe=$(cat informe.txt 2>/dev/null || echo "sin informe (codigo $estado)")
-            echo "$informe"
-            resumen=$(echo "$informe" | tail -c 3000 | sed 's/%/%25/g' | awk 'BEGIN{ORS="%0A"} {print}')
-            if [ "$estado" != 0 ]; then echo "::error title=Fallo en la autoprueba ($ejemplo)::$resumen"; fallos=1;
-            else echo "::notice title=Autoprueba correcta ($ejemplo)::$(tail -n 1 informe.txt)"; fi
-          done
-          exit $fallos
-      - name: Autoprueba del escáner (sin escáner conectado)
-        shell: bash
-        run: |
           estado=0
-          timeout 60 ./dist/win-unpacked/Albaranes.exe --autoprueba-escaner escaner.txt || estado=$?
-          informe=$(cat escaner.txt 2>/dev/null || echo "sin informe (codigo $estado)")
-          if [ "$estado" != 0 ]; then echo "::error title=Fallo en la autoprueba del escáner::$informe"; exit 1; fi
-          echo "::notice title=Autoprueba del escáner::$informe"
+          timeout 180 ./dist/win-unpacked/Albaranes.exe --autoprueba test/ejemplos/ejemplo.pdf informe.txt || estado=$?
+          informe=$(cat informe.txt 2>/dev/null || echo "sin informe (codigo $estado)")
+          echo "$informe"
+          resumen=$(echo "$informe" | tail -c 3000 | sed 's/%/%25/g' | awk 'BEGIN{ORS="%0A"} {print}')
+          if [ "$estado" != 0 ]; then echo "::error title=Fallo en la autoprueba::$resumen"; exit 1; fi
+          echo "::notice title=Autoprueba correcta::$resumen"
       - uses: actions/upload-artifact@v4
         with:
           name: Albaranes-instalador

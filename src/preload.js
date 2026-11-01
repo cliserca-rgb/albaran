@@ -3,8 +3,6 @@ const { contextBridge, ipcRenderer, webUtils } = require('electron');
 contextBridge.exposeInMainWorld('api', {
   elegirPdf: () => ipcRenderer.invoke('elegir-pdf'),
   rutasDe: (files) => [...files].map((f) => webUtils.getPathForFile(f)),
-  puedeEscanear: () => ipcRenderer.invoke('puede-escanear'),
-  escanear: () => ipcRenderer.invoke('escanear'),
   procesar: (rutas) => ipcRenderer.invoke('procesar', rutas),
   alProgresar: (fn) => ipcRenderer.on('progreso', (_e, datos) => fn(datos)),
   existe: (numero) => ipcRenderer.invoke('existe', numero),
@@ -22,6 +20,5 @@ contextBridge.exposeInMainWorld('api', {
   mostrarEnCarpeta: (id) => ipcRenderer.invoke('mostrar-en-carpeta', id),
   abrirCarpetaDatos: () => ipcRenderer.invoke('abrir-carpeta-datos'),
   carpetaDatos: () => ipcRenderer.invoke('carpeta-datos'),
-  cambiarCarpeta: () => ipcRenderer.invoke('cambiar-carpeta'),
   copiaSeguridad: () => ipcRenderer.invoke('copia-seguridad'),
 });

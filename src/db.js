@@ -151,16 +151,6 @@ class Biblioteca {
     return filas.sort((a, b) => (a.fecha === b.fecha ? compararNumeros(b.numero, a.numero) : 0));
   }
 
-  // Cuántas cifras suelen tener los números guardados (A1223 -> 4). 0 si no hay ninguno.
-  cifrasHabituales() {
-    const frecuencia = {};
-    for (const { numero } of this.consultar('SELECT numero FROM albaranes')) {
-      const p = partirNumero(numero);
-      if (p) frecuencia[p.cifras] = (frecuencia[p.cifras] || 0) + 1;
-    }
-    return Number(Object.keys(frecuencia).sort((a, b) => frecuencia[b] - frecuencia[a])[0] || 0);
-  }
-
   // Años y meses con albaranes, para el menú lateral.
   arbol() {
     const filas = this.consultar(`SELECT substr(fecha, 1, 4) AS anio, substr(fecha, 6, 2) AS mes, COUNT(*) AS n
@@ -245,20 +235,6 @@ class Biblioteca {
       tramos.push(inicio === n ? a.prefijo + ceros(n) : `${a.prefijo}${ceros(inicio)} – ${a.prefijo}${ceros(n)}`);
     }
     return { desde: a.prefijo + ceros(min), hasta: a.prefijo + ceros(max), total: max - min + 1, encontrados: presentes.size, faltan, tramos };
-  }
-
-  // Copia toda la biblioteca a `nueva` (que no debe tener ya una) y devuelve la biblioteca abierta allí.
-  // No borra nada de la carpeta actual.
-  async copiarA(nueva) {
-    if (fs.existsSync(path.join(nueva, 'albaranes.db'))) throw new Error('Esa carpeta ya tiene una biblioteca de albaranes');
-    const total = this.arbol().total;
-    fs.cpSync(this.raiz, nueva, { recursive: true, force: false, filter: (f) => !f.endsWith('.tmp') });
-    const copia = await Biblioteca.abrir(nueva);
-    const faltan = copia.listar().filter((f) => !fs.existsSync(copia.rutaArchivo(f)));
-    if (copia.arbol().total !== total || faltan.length) {
-      throw new Error('La copia no se ha completado. Se sigue usando la carpeta anterior.');
-    }
-    return copia;
   }
 
   // Copia el índice y todas las carpetas de meses a una carpeta nueva con fecha dentro de `destino`.

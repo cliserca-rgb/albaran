@@ -54,9 +54,9 @@ function avisar(texto, tipo = 'ok') {
 
 function mostrarVista(nombre) {
   estado.vista = nombre;
-  for (const v of ['lista', 'procesando', 'revision', 'faltantes', 'ajustes', 'detalle']) $(`#vista-${v}`).hidden = v !== nombre;
+  for (const v of ['lista', 'procesando', 'revision', 'faltantes', 'detalle']) $(`#vista-${v}`).hidden = v !== nombre;
   document.querySelectorAll('.lateral .nav').forEach((b) => b.classList.remove('activo'));
-  if (nombre === 'faltantes' || nombre === 'ajustes') $(`.nav[data-ir=${nombre}]`).classList.add('activo');
+  if (nombre === 'faltantes') $('.nav[data-ir=faltantes]').classList.add('activo');
   if (nombre === 'lista') marcarFiltroActivo();
 }
 
@@ -348,44 +348,6 @@ async function comprobarFaltantes(e) {
   }
 }
 
-// ---------- Escáner ----------
-async function escanear() {
-  if (estado.ocupado) return;
-  try {
-    importar(await window.api.escanear());
-  } catch (e) {
-    avisar(mensajeError(e), 'error');
-  }
-}
-
-// ---------- Ajustes ----------
-async function abrirAjustes() {
-  mostrarVista('ajustes');
-  $('#ruta-carpeta').textContent = (await window.api.carpetaDatos()).actual;
-}
-
-async function cambiarCarpeta() {
-  try {
-    const r = await window.api.cambiarCarpeta();
-    if (!r) return;
-    $('#ruta-carpeta').textContent = r.actual;
-    avisar(r.copiados ? `${albaranes(r.copiados)} copiados. A partir de ahora se guardan en la nueva carpeta.` : 'A partir de ahora los albaranes se guardan en la nueva carpeta.');
-    estado.abiertos.clear();
-    cargarArbol();
-  } catch (e) {
-    avisar(mensajeError(e), 'error');
-  }
-}
-
-async function copiaSeguridad() {
-  try {
-    const carpeta = await window.api.copiaSeguridad();
-    if (carpeta) avisar(`Copia de seguridad guardada en:\n${carpeta}`);
-  } catch (e) {
-    avisar(mensajeError(e), 'error');
-  }
-}
-
 // ---------- Detalle ----------
 async function abrirDetalle(id) {
   const f = await window.api.obtener(id);
@@ -432,12 +394,14 @@ $('.nav[data-ir=todos]').addEventListener('click', () => filtrar('', ''));
 $('.nav[data-ir=faltantes]').addEventListener('click', () => mostrarVista('faltantes'));
 $('#busqueda').addEventListener('input', cargarLista);
 $('#btn-carpeta').addEventListener('click', () => window.api.abrirCarpetaDatos());
-$('#btn-copia').addEventListener('click', copiaSeguridad);
-$('#btn-copia-ajustes').addEventListener('click', copiaSeguridad);
-$('.nav[data-ir=ajustes]').addEventListener('click', abrirAjustes);
-$('#btn-cambiar-carpeta').addEventListener('click', cambiarCarpeta);
-$('#btn-escanear').addEventListener('click', escanear);
-window.api.puedeEscanear().then((si) => ($('#btn-escanear').hidden = !si));
+$('#btn-copia').addEventListener('click', async () => {
+  try {
+    const carpeta = await window.api.copiaSeguridad();
+    if (carpeta) avisar(`Copia de seguridad guardada en:\n${carpeta}`);
+  } catch (e) {
+    avisar(mensajeError(e), 'error');
+  }
+});
 
 $('#btn-guardar-lote').addEventListener('click', guardarLote);
 $('#btn-cancelar-lote').addEventListener('click', cancelarLote);

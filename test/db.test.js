@@ -79,7 +79,6 @@ test('dice qué albaranes faltan en un intervalo', async () => {
   assert.deepEqual(r.tramos, ['A502', 'A504 – A506', 'A508 – A509']);
   assert.equal(r.encontrados, 5);
   assert.equal(r.total, 11);
-  assert.equal(bib.cifrasHabituales(), 3);
 
   assert.deepEqual(bib.faltantes('A510', 'A507').faltan, ['A508', 'A509'], 'acepta el intervalo al revés');
   assert.throws(() => bib.faltantes('A1', 'B9'), /misma letra/);
@@ -94,23 +93,4 @@ test('copia de seguridad', async () => {
   assert.ok(fs.existsSync(path.join(copia, 'albaranes.db')));
   assert.ok(fs.existsSync(path.join(copia, '2026', '01 - Enero', 'A1.pdf')));
   assert.throws(() => bib.copiaSeguridad(raiz), /dentro de la propia biblioteca/);
-});
-
-test('copiar la biblioteca a otra carpeta (cambio de carpeta en Ajustes)', async () => {
-  const raiz = carpetaTemporal();
-  const bib = await Biblioteca.abrir(raiz);
-  bib.guardarLote([pagina(carpetaTemporal(), 'p.pdf', 'A1', '2026-01-02'), pagina(carpetaTemporal(), 'q.pdf', 'A2', '')]);
-
-  const nueva = path.join(carpetaTemporal(), 'Albaranes en red');
-  const copia = await bib.copiarA(nueva);
-  assert.deepEqual(copia.listar().map((f) => f.numero).sort(), ['A1', 'A2']);
-  assert.ok(fs.existsSync(path.join(nueva, '2026', '01 - Enero', 'A1.pdf')));
-  assert.ok(fs.existsSync(path.join(raiz, '2026', '01 - Enero', 'A1.pdf')), 'la carpeta anterior no se toca');
-
-  // Lo que se guarda después va a la carpeta nueva
-  copia.guardarLote([pagina(carpetaTemporal(), 'r.pdf', 'A3', '2026-02-01')]);
-  assert.ok(fs.existsSync(path.join(nueva, '2026', '02 - Febrero', 'A3.pdf')));
-  assert.equal(bib.listar().length, 2);
-
-  await assert.rejects(bib.copiarA(nueva), /ya tiene una biblioteca/);
 });

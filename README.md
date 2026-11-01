@@ -4,7 +4,7 @@ Aplicación de escritorio para Windows que archiva **albaranes escaneados**.
 
 ## Qué hace
 
-A partir de un PDF escaneado (con uno o con muchos albaranes), de imágenes JPG/PNG o escaneando directamente desde la app:
+A partir de un PDF escaneado, con uno o con muchos albaranes:
 
 1. **Separa cada página** en un PDF independiente.
 2. **Lee el número de albarán y la fecha** de cada página (OCR, sin internet).
@@ -14,11 +14,7 @@ A partir de un PDF escaneado (con uno o con muchos albaranes), de imágenes JPG/
 
 Antes de guardar se muestra una pantalla de revisión. Los albaranes dudosos (número que parece incompleto, sin fecha, repetidos o ya guardados) salen marcados en amarillo para corregirlos con un clic.
 
-Además:
-- **Botón Escanear**: abre la ventana de escaneo de Windows (WIA, funciona con casi cualquier escáner) y permite escanear varias páginas seguidas.
-- **Imágenes**: las fotos o escaneos en JPG, PNG, WEBP, BMP o GIF se convierten a PDF automáticamente.
-- **Ajustes → Carpeta de los albaranes**: se puede elegir otra carpeta (otro disco, carpeta de red…) y copiar allí los albaranes existentes.
-- Búsqueda por número, notas en cada albarán, y copia de seguridad de todo en la carpeta que elijas (por ejemplo, un pendrive).
+Además: búsqueda por número, notas en cada albarán, y copia de seguridad de todo en la carpeta que elijas (por ejemplo, un pendrive).
 
 ## Descargar el instalador
 
@@ -47,7 +43,6 @@ npm run dist     # genera el instalador (en Windows)
 - `src/main.js` — proceso principal de Electron (ventana, diálogos, comunicación)
 - `src/preload.js` — puente seguro entre la interfaz y el proceso principal
 - `src/lector.js` — separa el PDF (pdf-lib), renderiza cada página (pdf.js) y lee la cabecera con OCR (tesseract.js)
-- `src/escaner.js` — escaneo con WIA mediante PowerShell (solo Windows)
 - `src/db.js` — biblioteca: carpetas por mes e índice SQLite (sql.js)
 - `src/renderer/` — interfaz (HTML, CSS, JS)
 - `test/` — pruebas; `test/ejemplos/ejemplo.pdf` es un albarán inventado (se regenera con `node scripts/crear-ejemplo.js`)

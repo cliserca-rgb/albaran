@@ -257,15 +257,3 @@ h1, h2 { margin: 0; letter-spacing: -.01em; }
 .modal-caja { width: min(900px, 100%); height: 100%; display: flex; flex-direction: column; background: var(--panel); border-radius: 14px; overflow: hidden; box-shadow: var(--sombra-alta); }
 .modal-cabecera { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px 10px 20px; border-bottom: 1px solid var(--borde); }
 #modal-visor { flex: 1; border: 0; background: #3b3f45; }
-
-/* ---------- Añadidos v0.3: escáner y ajustes ---------- */
-.acciones-lateral { display: flex; flex-direction: column; gap: 8px; }
-.boton.lateral-secundario { background: transparent; border-color: #33466b; color: #dfe6f3; }
-.boton.lateral-secundario:hover { background: rgba(255, 255, 255, .06); border-color: #4a5f88; }
-.contenido.ajustes { display: flex; flex-direction: column; gap: 18px; max-width: 760px; }
-.contenido.ajustes h2 { font-size: 16px; }
-.ruta-carpeta { display: flex; align-items: center; gap: 10px; margin: 14px 0; padding: 12px 14px; border: 1px solid var(--borde); border-radius: 8px; background: var(--fondo); font-family: "Cascadia Mono", Consolas, monospace; font-size: 13px; word-break: break-all; }
-.ruta-carpeta .icono { color: var(--acento); }
-.botones { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
-.nota { margin: 14px 0 0; font-size: 13px; color: var(--suave); line-height: 1.5; }
-.aviso-nota { margin-top: 6px; color: #8a6100; }

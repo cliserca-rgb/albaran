@@ -39,13 +39,7 @@ function pagina(numero, fecha) {
     const img = await doc.embedPng(pagina(n, f));
     doc.addPage([595, 842]).drawImage(img, { x: 0, y: 0, width: 595, height: 842 });
   }
-  const carpeta = path.join(__dirname, '..', 'test', 'ejemplos');
-  fs.writeFileSync(path.join(carpeta, 'ejemplo.pdf'), await doc.save());
-  // La misma clase de albarán como foto/escaneo suelto en JPG (a menor resolución, como un móvil o un escáner rápido)
-  const { createCanvas: crear, loadImage } = require('@napi-rs/canvas');
-  const img = await loadImage(pagina('A1053', '02/11/2026'));
-  const c = crear(1240, Math.round((1240 * img.height) / img.width));
-  c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-  fs.writeFileSync(path.join(carpeta, 'ejemplo.jpg'), c.toBuffer('image/jpeg', 85));
-  console.log('Creados ejemplo.pdf y ejemplo.jpg en', carpeta);
+  const destino = path.join(__dirname, '..', 'test', 'ejemplos', 'ejemplo.pdf');
+  fs.writeFileSync(destino, await doc.save());
+  console.log('Creado', destino);
 })();

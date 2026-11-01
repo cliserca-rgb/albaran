@@ -13,10 +13,7 @@
       <span>Albaranes</span>
     </div>
 
-    <div class="acciones-lateral">
-      <button id="btn-importar-lateral" class="boton primario ancho"><span data-icono="subir"></span>Importar PDF o imagen</button>
-      <button id="btn-escanear" class="boton lateral-secundario ancho" hidden><span data-icono="escaner"></span>Escanear</button>
-    </div>
+    <button id="btn-importar-lateral" class="boton primario ancho"><span data-icono="subir"></span>Importar PDF</button>
 
     <div class="grupo">
       <button class="nav activo" data-ir="todos"><span data-icono="carpeta"></span>Todos<span class="cuenta" id="cuenta-total"></span></button>
@@ -31,7 +28,7 @@
 
     <div class="grupo abajo">
       <button class="nav" id="btn-copia"><span data-icono="escudo"></span>Copia de seguridad</button>
-      <button class="nav" data-ir="ajustes"><span data-icono="ajustes"></span>Ajustes</button>
+      <button class="nav" id="btn-carpeta"><span data-icono="disco"></span>Abrir carpeta</button>
     </div>
   </nav>
 
@@ -60,8 +57,8 @@
 
         <button id="zona-vacia" class="zona-vacia" hidden>
           <span class="zona-icono" data-icono="subir-grande"></span>
-          <strong>Arrastra aquí el PDF escaneado o las fotos</strong>
-          <span>o haz clic para elegirlos. Vale un PDF con uno o muchos albaranes, o imágenes JPG y PNG.</span>
+          <strong>Arrastra aquí el PDF escaneado</strong>
+          <span>o haz clic para elegirlo. Puede tener uno o muchos albaranes.</span>
           <ol class="pasos">
             <li><span>1</span>Se separa cada página</li>
             <li><span>2</span>Se lee el número y la fecha</li>
@@ -139,36 +136,6 @@
       </div>
     </section>
 
-    <!-- ============ Ajustes ============ -->
-    <section id="vista-ajustes" class="vista" hidden>
-      <header class="cabecera">
-        <div class="titulos">
-          <h1>Ajustes</h1>
-          <p class="subtitulo">Dónde se guardan los albaranes y copias de seguridad.</p>
-        </div>
-      </header>
-      <div class="contenido ajustes">
-        <div class="tarjeta">
-          <h2>Carpeta de los albaranes</h2>
-          <p class="subtitulo">Aquí se crean las carpetas de cada año y mes con los PDF, y el índice de la biblioteca.</p>
-          <div class="ruta-carpeta"><span data-icono="carpeta"></span><span id="ruta-carpeta"></span></div>
-          <div class="botones">
-            <button id="btn-cambiar-carpeta" class="boton primario"><span data-icono="carpeta"></span>Cambiar carpeta…</button>
-            <button id="btn-carpeta" class="boton"><span data-icono="externo"></span>Abrir carpeta</button>
-          </div>
-          <p class="nota">Puedes elegir otra carpeta del PC, un disco externo o una carpeta de red. Si eliges una carpeta que ya tiene albaranes de esta app, se usarán esos. Si está vacía, podrás copiar allí los albaranes que ya tienes. La carpeta anterior nunca se borra.</p>
-          <p class="nota aviso-nota">Una misma carpeta no debe usarse desde dos ordenadores a la vez.</p>
-        </div>
-        <div class="tarjeta">
-          <h2>Copia de seguridad</h2>
-          <p class="subtitulo">Copia todos los albaranes y el índice a otra carpeta, por ejemplo un pendrive.</p>
-          <div class="botones">
-            <button id="btn-copia-ajustes" class="boton"><span data-icono="escudo"></span>Hacer copia de seguridad</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- ============ Detalle ============ -->
     <section id="vista-detalle" class="vista" hidden>
       <header class="cabecera">
@@ -216,7 +183,7 @@
   </div>
 
   <div id="soltar" class="soltar" hidden>
-    <div><span data-icono="subir-grande"></span><p>Suelta los archivos para leerlos</p></div>
+    <div><span data-icono="subir-grande"></span><p>Suelta el PDF para leerlo</p></div>
   </div>
   <div id="avisos" class="avisos"></div>
 
