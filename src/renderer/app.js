@@ -399,7 +399,7 @@ $('#btn-carpeta').addEventListener('click', () => window.api.abrirCarpetaDatos()
 $('#btn-escanear').addEventListener('click', async () => {
   if (estado.ocupado) return;
   estado.ocupado = true;
-  avisar('Abriendo el escáner… Si no ves la ventana, mira en la barra de tareas.');
+  avisar('Escaneando… espera unos segundos.');
   let paginas = [];
   try {
     paginas = await window.api.escanear();

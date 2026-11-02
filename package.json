@@ -1,7 +1,7 @@
 {
   "name": "albaran",
   "productName": "Albaranes",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Biblioteca de albaranes escaneados: separa, lee y archiva por meses",
   "main": "src/main.js",
   "author": "cliserca",

@@ -100,7 +100,7 @@ ipcMain.handle('elegir-pdf', async () => {
 });
 ipcMain.handle('procesar', (_e, rutas) => procesar(rutas.filter((r) => r.toLowerCase().endsWith('.pdf') || esImagen(r))));
 
-// Escanea una o varias páginas seguidas con la ventana de escaneo de Windows y devuelve las imágenes.
+// Escanea una o varias páginas seguidas con el escáner del PC y devuelve las imágenes.
 ipcMain.handle('puede-escanear', () => escaner.disponible);
 ipcMain.handle('escanear', async () => {
   const carpeta = fs.mkdtempSync(path.join(os.tmpdir(), 'albaranes-escaneo-'));
@@ -108,7 +108,22 @@ ipcMain.handle('escanear', async () => {
   const paginas = [];
   for (;;) {
     const destino = path.join(carpeta, `escaneo-${String(paginas.length + 1).padStart(3, '0')}.jpg`);
-    if (!(await escaner.escanearPagina(destino))) break; // cancelado en la ventana de Windows
+    try {
+      await escaner.escanearPagina(destino);
+    } catch (e) {
+      if (!paginas.length) throw e; // primera hoja: el aviso se muestra en la ventana de la app
+      // Ya hay hojas escaneadas: no se pierden; se puede reintentar o terminar con las que hay.
+      const { response } = await dialog.showMessageBox(ventana, {
+        type: 'warning',
+        buttons: ['Reintentar', 'Terminar y leer'],
+        defaultId: 0,
+        cancelId: 1,
+        message: 'No se ha podido escanear la página',
+        detail: `${e.message}\n\nLas ${paginas.length} páginas ya escaneadas no se pierden.`,
+      });
+      if (response === 0) continue;
+      break;
+    }
     paginas.push(destino);
     const { response } = await dialog.showMessageBox(ventana, {
       type: 'question',

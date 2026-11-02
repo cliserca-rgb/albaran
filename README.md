@@ -16,7 +16,7 @@ Antes de guardar se muestra una pantalla de revisión. Los albaranes dudosos (n�
 
 Además:
 - **Imágenes**: al importar o arrastrar fotos o escaneos en JPG, PNG, GIF, WEBP o BMP se convierten a PDF automáticamente.
-- **Botón Escanear** (debajo de Importar PDF): abre la ventana de escaneo de Windows (WIA, funciona con casi cualquier escáner) y permite escanear varias páginas seguidas.
+- **Botón Escanear** (debajo de Importar PDF): escanea directamente con el escáner del PC (WIA, funciona con casi cualquier escáner) y permite escanear varias páginas seguidas.
 - **Cambiar carpeta** (abajo en el menú): elegir en qué carpeta se guardan los albaranes y copiar allí los existentes. La carpeta anterior no se borra.
 - Búsqueda por número, notas en cada albarán, y copia de seguridad de todo en la carpeta que elijas (por ejemplo, un pendrive).
 
@@ -45,7 +45,7 @@ npm run dist     # genera el instalador (en Windows)
 - `src/main.js` — proceso principal de Electron (ventana, diálogos, comunicación)
 - `src/preload.js` — puente seguro entre la interfaz y el proceso principal
 - `src/lector.js` — separa el PDF (pdf-lib), renderiza cada página (pdf.js) y lee la cabecera con OCR (tesseract.js)
-- `src/escaner.js` — escaneo con WIA mediante un VBScript en wscript.exe (solo Windows)
+- `src/escaner.js` — escaneo con WIA mediante PowerShell (solo Windows)
 - `src/db.js` — biblioteca: carpetas por mes e índice SQLite (sql.js)
 - `src/renderer/` — interfaz (HTML, CSS, JS)
 - `test/` — pruebas; `test/ejemplos/ejemplo.pdf` es un albarán inventado (se regenera con `node scripts/crear-ejemplo.js`)
