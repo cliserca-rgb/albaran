@@ -45,7 +45,7 @@ npm run dist     # genera el instalador (en Windows)
 - `src/main.js` — proceso principal de Electron (ventana, diálogos, comunicación)
 - `src/preload.js` — puente seguro entre la interfaz y el proceso principal
 - `src/lector.js` — separa el PDF (pdf-lib), renderiza cada página (pdf.js) y lee la cabecera con OCR (tesseract.js)
-- `src/escaner.js` — escaneo con WIA mediante PowerShell (solo Windows)
+- `src/escaner.js` — escaneo con WIA mediante un VBScript en wscript.exe (solo Windows)
 - `src/db.js` — biblioteca: carpetas por mes e índice SQLite (sql.js)
 - `src/renderer/` — interfaz (HTML, CSS, JS)
 - `test/` — pruebas; `test/ejemplos/ejemplo.pdf` es un albarán inventado (se regenera con `node scripts/crear-ejemplo.js`)

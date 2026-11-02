@@ -51,7 +51,8 @@ jobs:
           estado=0
           timeout 60 ./dist/win-unpacked/Albaranes.exe --autoprueba-escaner escaner.txt || estado=$?
           informe=$(cat escaner.txt 2>/dev/null || echo "sin informe (codigo $estado)")
-          if [ "$estado" != 0 ]; then echo "::error title=Fallo en la autoprueba del escáner::$informe"; exit 1; fi
+          # En GitHub no hay escáner: lo correcto es que WIA arranque y responda que no encuentra ninguno
+          if [ "$estado" != 0 ] || ! grep -q "No se ha encontrado" escaner.txt; then echo "::error title=Fallo en la autoprueba del escáner::$informe"; exit 1; fi
           echo "::notice title=Autoprueba del escáner::$informe"
       - uses: actions/upload-artifact@v4
         with:

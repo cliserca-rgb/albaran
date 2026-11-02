@@ -398,11 +398,17 @@ $('#btn-carpeta').addEventListener('click', () => window.api.abrirCarpetaDatos()
 // Escanear con el escáner del PC: las páginas escaneadas siguen el mismo proceso que un PDF importado.
 $('#btn-escanear').addEventListener('click', async () => {
   if (estado.ocupado) return;
+  estado.ocupado = true;
+  avisar('Abriendo el escáner… Si no ves la ventana, mira en la barra de tareas.');
+  let paginas = [];
   try {
-    importar(await window.api.escanear());
+    paginas = await window.api.escanear();
   } catch (e) {
     avisar(mensajeError(e), 'error');
+  } finally {
+    estado.ocupado = false;
   }
+  if (paginas.length) importar(paginas);
 });
 window.api.puedeEscanear().then((si) => ($('#btn-escanear').hidden = !si));
 
